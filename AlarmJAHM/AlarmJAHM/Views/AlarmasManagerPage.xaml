@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:AlarmJAHM"
+             mc:Ignorable="d"
+             x:Class="AlarmJAHM.Views.AlarmasManagerPage"
+             x:Name="AlarmasManager"
+             Visual="Material"
+             Title="Recordatorios - JAHM">
+
+    <AbsoluteLayout>
+
+        <RefreshView IsRefreshing="{Binding IsBusy}"
+                     Command="{Binding RefrescarCommand}" >
+
+            <CollectionView ItemsSource="{Binding DatosAlarmas}" BackgroundColor="White">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout ItemSpacing="10" Orientation="Vertical"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame HasShadow="False" BorderColor="LightGray">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="1" />
+                                    <ColumnDefinition Width="1" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackLayout Orientation="Horizontal">
+                                    <!--<Label Text="{Binding Nombre}" />-->
+                                    <Label Text="{Binding Titulo}" 
+                                           Grid.Column="0"
+                                           HorizontalOptions="StartAndExpand" />
+
+                                    <ImageButton x:Name="btnEditarAlarma"
+                                                 Grid.Column="1"
+                                                 Source="{local:ImageResource AlarmJAHM.images.edit24dp2x.png}"
+                                                 BackgroundColor="Transparent"
+                                                 HorizontalOptions="End" 
+                                                 Command="{Binding Source={x:Reference Name=AlarmasManager}, Path=BindingContext.EditarAlarmaCommand}"
+                                                 CommandParameter="{Binding}" />
+
+                                    <ImageButton x:Name="btnEliminarAlarma"
+                                                 Grid.Column="2"
+                                                 Source="{local:ImageResource AlarmJAHM.images.delete24dp2x.png}"
+                                                 BackgroundColor="Transparent"
+                                                 HorizontalOptions="End"
+                                                 Command="{Binding Source={x:Reference Name=AlarmasManager}, Path=BindingContext.EliminarAlarmaCommand}"
+                                                 CommandParameter="{Binding}" />
+                                </StackLayout>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <ImageButton Source="{local:ImageResource AlarmJAHM.images.addcircle24dp.png}" 
+            BackgroundColor="Transparent"
+            AbsoluteLayout.LayoutFlags="PositionProportional"  
+            AbsoluteLayout.LayoutBounds=".95,.95,40,40"
+            Command="{Binding AgregarAlarmaCommand}" />
+    </AbsoluteLayout>
+
+</ContentPage>

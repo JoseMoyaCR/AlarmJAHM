@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             xmlns:local="clr-namespace:AlarmJAHM"
+             xmlns:viewModelBase="clr-namespace:AlarmJAHM.Models"
+             x:Class="AlarmJAHM.Views.FrmAlarmaPage"
+             x:Name="FrmAlarma"
+             Visual="Material"
+             Title="Recordatorio">
+    <ContentPage.Content>
+        <StackLayout>
+            <Entry Placeholder="Ingrese el título..." MaxLength="25" Text="{ Binding AlarmaModel.Titulo, Mode=TwoWay}" />
+            <Editor Placeholder="Ingrese una descripción..." MaxLength="500" AutoSize="TextChanges" Text="{ Binding AlarmaModel.Descripcion, Mode=TwoWay}" />
+            <Label Text="Hora:"/>
+            <TimePicker Time="{ Binding AlarmaModel.Hora, Mode=TwoWay }" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Button Text="Cancelar" Grid.Column="0" Command="{ Binding CancelarCommand }" />
+                <Button Text="Guardar" Grid.Column="1" Command="{ Binding GuardarAlarmaCommand }" />
+            </Grid>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
