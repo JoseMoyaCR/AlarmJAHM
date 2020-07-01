@@ -24,9 +24,24 @@ namespace AlarmJAHM.iOS
         {
             global::Xamarin.Forms.Forms.Init();
             global::Xamarin.Forms.FormsMaterial.Init();
+
+            Xamarin.Forms.DependencyService.Register<IosSqliteDb>();
+
             LoadApplication(new App());
 
             return base.FinishedLaunching(app, options);
+        }
+    }
+
+    public class IosSqliteDb : AlarmJAHM.Data.SQLiteDb
+    {
+        public IosSqliteDb()
+              : base(
+                    System.IO.Path.Combine(
+                        System.Environment.GetFolderPath(Environment.SpecialFolder.Personal)
+                        , "..", "Library") + "/AlarmaJAHM.db3"
+                    )
+        {
         }
     }
 }

@@ -15,15 +15,15 @@ using Xamarin.Forms;
 namespace AlarmJAHM.ViewModels
 {
     public class AlarmaViewModel : BindableObject
-    { 
+    {
+        Data.SQLiteDb Database { get => DependencyService.Get<Data.SQLiteDb>(); }
+
         private bool _IsBusy;
 
         private INavigation _Navigation;
 
         private Alarma _Alarma;
 
-
-        public ObservableCollection<Alarma> DatosAlarmas { get; set; }
 
         public Command CancelarCommand { get; set; }
 
@@ -58,19 +58,17 @@ namespace AlarmJAHM.ViewModels
             GuardarAlarmaCommand = new Command(async () => await GuardarAlarma(), () => !IsBusy);
         }
 
-        public AlarmaViewModel(INavigation mainPageNav, ref ObservableCollection<Alarma> datosAlarmas)
+        public AlarmaViewModel(INavigation mainPageNav)
         {
             _Navigation = mainPageNav;
-            DatosAlarmas = datosAlarmas;
             AlarmaModel = new Alarma();
 
             InicializarCommands();
         }
 
-        public AlarmaViewModel(INavigation mainPageNav, ref ObservableCollection<Alarma> datosAlarmas, Alarma alarma)
+        public AlarmaViewModel(INavigation mainPageNav, Alarma alarma)
         {
             _Navigation = mainPageNav;
-            DatosAlarmas = datosAlarmas;
             AlarmaModel = alarma;
 
             InicializarCommands();
@@ -85,6 +83,8 @@ namespace AlarmJAHM.ViewModels
                 {
                     return;
                 }
+
+                var localDataAlarmas = await Database.ListAsync<Alarma>();
 
                 if (AlarmaModel != null && AlarmaModel.ID > 0)
                 {
@@ -106,7 +106,7 @@ namespace AlarmJAHM.ViewModels
                         var resultAPI = alarmasAPI.Result;
                         if (resultAPI.IsSuccessStatusCode)
                         {
-                            //DatosAlarmas.Add(AlarmaModel);
+                            //await Database.UpdateAsync(AlarmaModel);
                             await _Navigation.PopToRootAsync();
                         }
                         else
@@ -138,7 +138,7 @@ namespace AlarmJAHM.ViewModels
                         var resultAPI = alarmasAPI.Result;
                         if (resultAPI.IsSuccessStatusCode)
                         {
-                            //DatosAlarmas.Add(AlarmaModel);
+                            //await Database.InsertAsync(AlarmaModel);
                             await _Navigation.PopToRootAsync();
                         }
                         else

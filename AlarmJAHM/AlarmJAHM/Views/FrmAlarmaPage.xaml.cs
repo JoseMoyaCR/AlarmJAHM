@@ -16,18 +16,18 @@ namespace AlarmJAHM.Views
     {
         private AlarmaViewModel _ViewModel;
 
-        public FrmAlarmaPage(ref ObservableCollection<Alarma> datosAlarmas)
+        public FrmAlarmaPage()
         {
             // Indica que se va a crear una alarma/recordatorio
-            BindingContext = _ViewModel = new AlarmaViewModel(Navigation, ref datosAlarmas, new Alarma { ID = -1 });
+            BindingContext = _ViewModel = new AlarmaViewModel(Navigation, new Alarma { ID = -1 });
 
             InitializeComponent();
         }
 
-        public FrmAlarmaPage(ref ObservableCollection<Alarma> datosAlarmas, Alarma alarma)
+        public FrmAlarmaPage(Alarma alarma)
         {
             // Indica que se va a editar una alarma/recordatorio
-            BindingContext = _ViewModel = new AlarmaViewModel(Navigation, ref datosAlarmas, alarma);
+            BindingContext = _ViewModel = new AlarmaViewModel(Navigation, alarma);
 
             InitializeComponent();
         }

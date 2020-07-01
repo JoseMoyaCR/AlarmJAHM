@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +16,8 @@ namespace AlarmJAHM.ViewModels
 {
     public class AlarmaManagerViewModel : BindableObject
     {
+		Data.SQLiteDb Database { get => DependencyService.Get<Data.SQLiteDb>(); }
+
 		private bool _IsBusy;
 
 		INavigation _Navigation;
@@ -38,16 +41,11 @@ namespace AlarmJAHM.ViewModels
 			}
 		}
 
-		private ObservableCollection<Alarma> _DatosAlarmas;
-		private Alarma _Cargando = new Alarma { ID = -1, Titulo = "Cargando..." };
-		public ObservableCollection<Alarma> DatosAlarmas 
-		{ 
-			get => _DatosAlarmas;
-			set
-			{
-				_DatosAlarmas = value;
-			}
-		}
+
+		private static Alarma _Cargando = new Alarma { ID = -1, Titulo = "Cargando..." };
+		public ObservableCollection<Alarma> DatosAlarmas { get; } = new ObservableCollection<Alarma>(
+            new Alarma[] { _Cargando }
+		);
 
 
 		public AlarmaManagerViewModel(INavigation mainPageNav) 
@@ -58,7 +56,7 @@ namespace AlarmJAHM.ViewModels
 			// Inicializamos el comando para cargar datos
 			RefrescarCommand = new Command(async () => {
 				IsBusy = true;
-				await CargarDatos();
+				await ConsultarDatosAPI();
 				IsBusy = false;
 			});
 
@@ -73,7 +71,7 @@ namespace AlarmJAHM.ViewModels
 		{
 			Console.WriteLine("1- Agregando una alarma.");
 
-			await _Navigation.PushAsync(new FrmAlarmaPage(ref _DatosAlarmas));
+			await _Navigation.PushAsync(new FrmAlarmaPage());
 		}
 
 
@@ -81,7 +79,7 @@ namespace AlarmJAHM.ViewModels
 		{
 			if (alarma != null)
 			{
-				await _Navigation.PushAsync(new FrmAlarmaPage(ref _DatosAlarmas, (Alarma)alarma));
+				await _Navigation.PushAsync(new FrmAlarmaPage((Alarma)alarma));
 			}
 			else
             {
@@ -99,7 +97,7 @@ namespace AlarmJAHM.ViewModels
 			if (alarma != null)
 			{
 				Alarma alarmaModel = ((Alarma)alarma);
-				Console.WriteLine("3- Eliminando una alarma." + alarmaModel.ID.ToString());
+				Console.WriteLine("3- Eliminando una alarma. " + alarmaModel.ID.ToString());
 
 				var hc = new HttpClient()
 				{
@@ -115,6 +113,9 @@ namespace AlarmJAHM.ViewModels
 				var resultAPI = alarmasAPI.Result;
 				if (resultAPI.IsSuccessStatusCode)
 				{
+					// Limpiamos la caché
+					//DatosAlarmas.Remove(alarmaModel);
+					//await Database.DeleteAsync<Alarma>(alarmaModel);
 					await CargarDatos();
 				}
 				else
@@ -131,12 +132,41 @@ namespace AlarmJAHM.ViewModels
 
 		public async Task CargarDatos()
 		{
+			try
+			{
+				var localDataAlarmas = await Database.ListAsync<Alarma>();
+
+				DatosAlarmas.Clear();
+
+				// Verificamos si la caché tiene datos
+				if (localDataAlarmas.Any())
+				{
+					//foreach (var alarma in localDataAlarmas)
+					//{
+					//	DatosAlarmas.Add(alarma);
+					//}
+
+					await ConsultarDatosAPI();
+				}
+				else
+				{
+					await ConsultarDatosAPI();
+				}
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.Message);
+			}
+		}
+
+
+		private async Task ConsultarDatosAPI()
+		{
 			// TODO: Checkear el internet
 			if (Connectivity.NetworkAccess != NetworkAccess.Internet)
 			{
 				return;
 			}
-
 
 			try
 			{
@@ -157,23 +187,20 @@ namespace AlarmJAHM.ViewModels
 					{
 						alarma.HoraTimeSpan = new TimeSpan(alarma.Hora ?? 0);
 					}
-					
+
 					DatosAlarmas.Add(alarma);
 				}
 
-				//var horaActual = DateTime.Now;
-				//horaActual = horaActual.AddSeconds(-horaActual.Second).AddMilliseconds(-horaActual.Millisecond);
 
-				//DatosAlarmas.Add(new Alarma { ID = 111, Titulo = "Alarma 1", Descripcion = "Desc 1", Hora = horaActual.AddMinutes(1).TimeOfDay });
-				//DatosAlarmas.Add(new Alarma { ID = 222, Titulo = "Alarma 2", Descripcion = "Desc 22", Hora = horaActual.AddMinutes(2).TimeOfDay });
-				//DatosAlarmas.Add(new Alarma { ID = 333, Titulo = "Alarma 3", Descripcion = "Desc 333", Hora = horaActual.AddMinutes(3).TimeOfDay });
-
+				// Limpiamos la BD
+				//await Database.DeleteAllAsync<Alarma>();
+				// Agregamos a la base de datos local - Cache
+				//await Database.InsertAllAsync(DatosAlarmas.ToArray());
 			}
 			catch (Exception ex)
 			{
 				Console.WriteLine(ex.Message);
 			}
 		}
-
 	}
 }

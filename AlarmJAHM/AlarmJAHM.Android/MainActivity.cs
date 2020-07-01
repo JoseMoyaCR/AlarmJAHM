@@ -24,6 +24,9 @@ namespace AlarmJAHM.Droid
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             global::Xamarin.Forms.FormsMaterial.Init(this, savedInstanceState);
+
+            Xamarin.Forms.DependencyService.Register<SQLiteAndroid>();
+
             LoadApplication(new App());
 
 
@@ -46,5 +49,16 @@ namespace AlarmJAHM.Droid
 
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+    }
+
+
+
+    public class SQLiteAndroid : AlarmJAHM.Data.SQLiteDb
+    {
+        public SQLiteAndroid()
+            : base(
+                 System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal) + "/AlarmaJAHM.db3"
+                  )
+        { }
     }
 }
